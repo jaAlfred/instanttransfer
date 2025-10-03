@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اطلاعات ذخیره شد</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
+  <style>
+    body { font-family: Vazir, sans-serif; }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-green-400 to-blue-500 flex flex-col items-center justify-center min-h-screen">
+
+  <!-- تاریخ شمسی بالای صفحه -->
+  <div id="dateContainer" class="text-white text-lg font-bold mb-4"></div>
+
+  <div class="w-full max-w-md space-y-4" id="recordsContainer"></div>
+
+  <!-- دکمه‌ها -->
+  <div class="flex gap-4 mt-4">
+    <a href="form.html" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">ثبت جدید</a>
+    <button onclick="sendPart()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg">ارسال این پارت</button>
+  </div>
+
+  <script>
+    // ✅ ارسال داده‌ها به Google Sheet
+    function sendToGoogleSheet(records) {
+      fetch("https://script.google.com/macros/s/AKfycbzroO3NfWm7aluEXLqQBPEOGbyZSXpjGsIuV6OOTDrSY3-uxkhn3bmhi43W_1euoBBuvQ/exec", {
+        method: "POST",
+        body: JSON.stringify(records),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => res.text())
+      .then(txt => {
+        console.log("✅ ارسال شد:", txt);
+        alert("اطلاعات با موفقیت در Google Sheet ذخیره شد ✅");
+      })
+      .catch(err => {
+        console.error("❌ خطا در ارسال:", err);
+        alert("خطا در اتصال به Google Sheet");
+      });
+    }
+
+    function numberToWords(num) {
+      if (num === 0) return "صفر";
+      const ones = ["","یک","دو","سه","چهار","پنج","شش","هفت","هشت","نه"];
+      const teens = ["ده","یازده","دوازده","سیزده","چهارده","پانزده","شانزده","هفده","هجده","نوزده"];
+      const tens = ["","","بیست","سی","چهل","پنجاه","شصت","هفتاد","هشتاد","نود"];
+      const hundreds = ["","یکصد","دویست","سیصد","چهارصد","پانصد","ششصد","هفتصد","هشتصد","نهصد"];
+      const thousands = ["","هزار","میلیون","میلیارد","تریلیون"];
+      function convertThreeDigits(n) {
+        let word = "";
+        const h = Math.floor(n/100);
+        const t = Math.floor((n%100)/10);
+        const o = n%10;
+        if (h > 0) word += hundreds[h];
+        if (t === 1) {
+          if (word) word += " و ";
+          word += teens[o];
+        } else {
+          if (t > 1) {
+            if (word) word += " و ";
+            word += tens[t];
+          }
+          if (o > 0) {
+            if (word) word += " و ";
+            word += ones[o];
+          }
+        }
+        return word;
+      }
+      let parts = [];
+      let i = 0;
+      while (num > 0) {
+        let chunk = num % 1000;
+        if (chunk) {
+          let chunkWord = convertThreeDigits(chunk);
+          if (thousands[i]) chunkWord += " " + thousands[i];
+          parts.unshift(chunkWord);
+        }
+        num = Math.floor(num / 1000);
+        i++;
+      }
+      return parts.join(" و ");
+    }
+
+    const records = JSON.parse(localStorage.getItem("records") || "[]");
+
+    function normalizeCompanyName(value) {
+      const mapping = {
+        "idehpardaz": "ایده پردازش دانش ساخت",
+        "toluefars": "ایمن پردازشگران طلوع فارس",
+        "idea": "ایده پردازش دانش ساخت",
+        "imen": "ایمن پردازشگران طلوع فارس",
+        "yekta": "شرکت یکتا مهراس کیش"
+      };
+      return mapping[value] || value;
+    }
+
+    const bankCodes = {
+      "010": "بانک مرکزی","011": "بانک صنعت و معدن","012": "بانک ملت","013": "بانک رفاه کارگران","014": "بانک مسکن","015": "بانک سپه",
+      "016": "بانک کشاورزی","017": "بانک ملی ایران","018": "بانک تجارت","019": "بانک صادرات ایران","020": "بانک توسعه صادرات",
+      "021": "پست بانک","022": "بانک توسعه تعاون","032": "بانک انصار","054": "بانک پارسیان","055": "بانک اقتصاد نوین","056": "بانک سامان",
+      "057": "بانک پاسارگاد","058": "بانک سرمایه","059": "بانک سینا","060": "بانک قرض‌الحسنه مهر ایران","061": "بانک شهر","062": "بانک آینده",
+      "064": "بانک گردشگری","066": "بانک دی","069": "بانک ایران زمین","070": "بانک قرض‌الحسنه رسالت","078": "بانک خاورمیانه"
+    };
+
+    function renderRecords() {
+      const container = document.getElementById("recordsContainer");
+      container.innerHTML = "";
+      records.forEach((rec, index) => {
+        const card = document.createElement("div");
+        card.className = "bg-white p-6 rounded-2xl shadow-xl text-center";
+        const isSaderat = rec.destBank === "saderat";
+        const accountLabel = isSaderat ? "شماره حساب" : "شماره شبا";
+        const accountValue = isSaderat ? rec.sheba : ("IR" + rec.sheba);
+        let bankNameDisplay = "نامشخص";
+        if (isSaderat) {
+          bankNameDisplay = "بانک صادرات";
+        } else if (rec.sheba && rec.sheba.length >= 5) {
+          const bankCode = rec.sheba.substring(2,5);
+          bankNameDisplay = bankCodes[bankCode] || "نامشخص";
+        }
+        card.innerHTML = `
+          <h2 class="text-xl font-bold mb-4">✅ اطلاعات ذخیره شد</h2>
+          <div class="text-right mb-4">
+            <p><strong>شرکت:</strong> ${normalizeCompanyName(rec.company)}</p>
+            <p><strong>شماره حساب شرکت:</strong> ${rec.account}</p>
+            <p><strong>نام:</strong> ${rec.name}</p>
+            <p><strong>نام بانک مقصد:</strong> ${bankNameDisplay}</p>
+            <p><strong>${accountLabel}:</strong> ${accountValue}</p>
+            <p><strong>مبلغ:</strong> ${Number(rec.amount).toLocaleString("fa-IR")} ریال</p>
+            <p class="text-green-600"><strong>به حروف:</strong> ${numberToWords(Number(rec.amount))} ریال</p>
+          </div>
+          <div id="editForm-${index}" class="hidden text-right space-y-2 mb-4">
+            <label class="block font-medium">شرکت:</label>
+            <input type="text" id="editCompany-${index}" class="w-full border rounded px-2 py-1" value="${normalizeCompanyName(rec.company)}">
+            <label class="block font-medium">شماره حساب شرکت:</label>
+            <input type="text" id="editAccount-${index}" class="w-full border rounded px-2 py-1" value="${rec.account}">
+            <label class="block font-medium">نام:</label>
+            <input type="text" id="editName-${index}" class="w-full border rounded px-2 py-1" value="${rec.name}">
+            <label class="block font-medium">نام بانک مقصد:</label>
+            <input type="text" id="editDestBank-${index}" class="w-full border rounded px-2 py-1" value="${bankNameDisplay}">
+            <label class="block font-medium">${accountLabel}:</label>
+            <input type="text" id="editSheba-${index}" class="w-full border rounded px-2 py-1" value="${rec.sheba}">
+            <label class="block font-medium">مبلغ (ریال):</label>
+            <input type="text" id="editAmount-${index}" class="w-full border rounded px-2 py-1" value="${rec.amount}">
+            <button onclick="saveEdit(${index})" class="bg-green-600 hover:bg-green-700 text-white w-full py-2 rounded-lg mt-2">ذخیره تغییرات</button>
+          </div>
+          <div class="flex justify-between gap-2">
+            <button onclick="showEdit(${index})" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg w-1/2">ویرایش</button>
+            <button onclick="deleteRecord(${index})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg w-1/2">حذف</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function showEdit(index) {
+      document.getElementById(`editForm-${index}`).classList.remove("hidden");
+    }
+
+    function saveEdit(index) {
+      records[index].company = document.getElementById(`editCompany-${index}`).value;
+      records[index].account = document.getElementById(`editAccount-${index}`).value;
+      records[index].name = document.getElementById(`editName-${index}`).value;
+      records[index].sheba = document.getElementById(`editSheba-${index}`).value;
+      records[index].amount = document.getElementById(`editAmount-${index}`).value;
+      localStorage.setItem("records", JSON.stringify(records));
+      renderRecords();
+    }
+
+    function deleteRecord(index) {
+      records.splice(index, 1);
+      localStorage.setItem("records", JSON.stringify(records));
+      renderRecords();
+    }
+
+    function toPersianDate(date) {
+      return new Intl.DateTimeFormat("fa-IR", { dateStyle: "full" }).format(date);
+    }
+    document.getElementById("dateContainer").innerText = toPersianDate(new Date());
+
+    // تابع ارسال نهایی
+    function sendPart() {
+      if (records.length === 0) {
+        alert("هیچ رکوردی برای ارسال وجود ندارد.");
+        return;
+      }
+
+      sendToGoogleSheet(records);
+
+      localStorage.removeItem("records");
+      records.length = 0;
+      renderRecords();
+    }
+
+    renderRecords();
+  </script>
+</body>
+</html>
