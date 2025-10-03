@@ -1,13 +1,7 @@
-// netlify/functions/saveData.js
 const { google } = require('googleapis');
 
 const SHEET_ID = '1KI2MGru1__zMP8kHvCCA0HE3mM-03HhT3gMj5rajuZ8';
 const SHEET_NAME = 'Sheet1';
-
-// بررسی وجود متغیرهای محیطی
-if (!process.env.GOOGLE_CLIENT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
-  console.error("❌ خطای تنظیمات: متغیرهای محیطی Google تنظیم نشده‌اند!");
-}
 
 const CREDENTIALS = {
   "type": process.env.GOOGLE_TYPE,
@@ -25,7 +19,7 @@ const CREDENTIALS = {
 exports.handler = async (event) => {
   try {
     const records = JSON.parse(event.body);
-    console.log("داده‌ها برای ارسال به شیت:", records);
+    console.log("داده‌ها برای ارسال به شیت:", records); // ← این خط باید باشه
 
     const auth = new google.auth.JWT(
       CREDENTIALS.client_email,
@@ -61,10 +55,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ status: "success" })
     };
   } catch (error) {
-    // 🔥 این خط خیلی مهمه — خطا رو دقیق نشون می‌ده
     console.error("❌ خطا در اتصال به Google Sheets:", error.message);
-    console.error("خطای کامل:", error);
-
     return {
       statusCode: 500,
       body: JSON.stringify({ error: error.message })
