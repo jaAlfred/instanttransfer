@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فرم ثبت اطلاعات</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
+  <style>
+    body { font-family: Vazir, sans-serif; }
+    label { text-align: right; display: block; }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
+    <h2 class="text-xl font-bold text-center mb-4">فرم ثبت اطلاعات</h2>
+
+    <label class="mb-2 font-medium">شرکت:</label>
+    <select id="company" onchange="updateAccounts()" class="w-full border rounded px-3 py-2 mb-3">
+      <option value="">-- لطفا شرکت را انتخاب کنید --</option>
+      <option value="idea">ایده پردازش دانش ساخت</option>
+      <option value="imen">ایمن پردازشگران طلوع فارس</option>
+      <option value="yekta">یکتا مهراس کیش</option>
+    </select>
+
+    <label class="mb-2 font-medium">شماره حساب:</label>
+    <select id="account" class="w-full border rounded px-3 py-2 mb-3" disabled>
+      <option value="">-- ابتدا شرکت را انتخاب کنید --</option>
+    </select>
+
+    <!-- ✅ فیلد جدید برای انتخاب بانک مقصد -->
+    <label class="mb-2 font-medium">نام بانک مقصد:</label>
+    <select id="destBank" onchange="toggleShebaField()" class="w-full border rounded px-3 py-2 mb-3">
+      <option value="other" selected>سایر بانک ها</option>
+      <option value="saderat">بانک صادرات</option>
+    </select>
+
+    <label class="mb-2 font-medium">نام:</label>
+    <input type="text" id="name" class="w-full border rounded px-3 py-2 mb-3" placeholder="نام و نام خانوادگی">
+
+    <label class="mb-2 font-medium" id="shebaLabel">شماره شبا:</label>
+    <div class="flex mb-1" id="shebaContainer">
+      <input 
+        type="text" 
+        id="sheba" 
+        class="flex-1 border rounded-l-md px-3 py-2" 
+        maxlength="24" 
+        placeholder="۲۴ رقم شماره حساب داخلی را وارد کنید"
+        oninput="generateIBAN()"
+        onkeypress="return /[0-9۰-۹]/.test(event.key)">
+      <span class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-100 text-gray-600" id="shebaPrefix">
+        IR
+      </span>
+    </div>
+    <p id="ibanDisplay" class="text-sm font-bold text-green-700 mt-2"></p>
+    <p id="bankName" class="text-sm text-gray-700 mt-1"></p>
+
+    <label class="mb-2 font-medium">مبلغ (ریال):</label>
+    <input type="text" id="amount" oninput="formatAmount()" class="w-full border rounded px-3 py-2 mb-1" placeholder="مثال: 1000000">
+    <p id="amountWords" class="text-sm text-gray-700 mt-1"></p>
+
+    <button type="button" onclick="submitForm()" class="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg">ثبت</button>
+
+    <p id="result" class="text-red-600 text-sm mt-3 text-center"></p>
+  </div>
+
+  <script>
+    const accounts = {
+      "idea": ["0219112835002","0340299403008"],
+      "imen": ["0219112791004"],
+      "yekta": ["0120277558001"]
+    };
+
+    function updateAccounts() {
+      const company = document.getElementById("company").value;
+      const accountSelect = document.getElementById("account");
+      accountSelect.innerHTML = "";
+      if (company && accounts[company]) {
+        accounts[company].forEach(acc => {
+          const opt = document.createElement("option");
+          opt.value = acc;
+          opt.textContent = acc;
+          accountSelect.appendChild(opt);
+        });
+        accountSelect.disabled = false;
+      } else {
+        accountSelect.innerHTML = `<option value="">-- ابتدا شرکت را انتخاب کنید --</option>`;
+        accountSelect.disabled = true;
+      }
+    }
+
+    function normalizeDigits(str) {
+      return str.replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d));
+    }
+
+    function numberToWords(num) {
+      if (num === 0) return "صفر";
+      const ones = ["","یک","دو","سه","چهار","پنج","شش","هفت","هشت","نه"];
+      const teens = ["ده","یازده","دوازده","سیزده","چهارده","پانزده","شانزده","هفده","هجده","نوزده"];
+      const tens = ["","","بیست","سی","چهل","پنجاه","شصت","هفتاد","هشتاد","نود"];
+      const hundreds = ["","یکصد","دویست","سیصد","چهارصد","پانصد","ششصد","هفتصد","هشتصد","نهصد"];
+      const thousands = ["","هزار","میلیون","میلیارد","تریلیون"];
+
+      function convertThreeDigits(n) {
+        let word = "";
+        const h = Math.floor(n/100);
+        const t = Math.floor((n%100)/10);
+        const o = n%10;
+
+        if (h > 0) word += hundreds[h];
+        if (t === 1) {
+          if (word) word += " و ";
+          word += teens[o];
+        } else {
+          if (t > 1) {
+            if (word) word += " و ";
+            word += tens[t];
+          }
+          if (o > 0) {
+            if (word) word += " و ";
+            word += ones[o];
+          }
+        }
+        return word;
+      }
+
+      let parts = [];
+      let i = 0;
+      while (num > 0) {
+        let chunk = num % 1000;
+        if (chunk) {
+          let chunkWord = convertThreeDigits(chunk);
+          if (thousands[i]) chunkWord += " " + thousands[i];
+          parts.unshift(chunkWord);
+        }
+        num = Math.floor(num / 1000);
+        i++;
+      }
+      return parts.join(" و ");
+    }
+
+    function formatAmount() {
+      const input = document.getElementById("amount");
+      let raw = normalizeDigits(input.value).replace(/\D/g,"");
+      if(!raw) {
+        document.getElementById("amountWords").textContent = "";
+        return;
+      }
+      input.value = Number(raw).toLocaleString("fa-IR");
+      document.getElementById("amountWords").textContent = "به حروف: " + numberToWords(Number(raw)) + " ریال";
+    }
+
+    const bankCodes = {
+      "010": "بانک مرکزی",
+      "011": "بانک صنعت و معدن",
+      "012": "بانک ملت",
+      "013": "بانک رفاه کارگران",
+      "014": "بانک مسکن",
+      "015": "بانک سپه",
+      "016": "بانک کشاورزی",
+      "017": "بانک ملی ایران",
+      "018": "بانک تجارت",
+      "019": "بانک صادرات ایران",
+      "020": "بانک توسعه صادرات",
+      "021": "پست بانک",
+      "022": "بانک توسعه تعاون",
+      "032": "بانک انصار",
+      "054": "بانک پارسیان",
+      "055": "بانک اقتصاد نوین",
+      "056": "بانک سامان",
+      "057": "بانک پاسارگاد",
+      "058": "بانک سرمایه",
+      "059": "بانک سینا",
+      "060": "بانک قرض‌الحسنه مهر ایران",
+      "061": "بانک شهر",
+      "062": "بانک آینده",
+      "064": "بانک گردشگری",
+      "066": "بانک دی",
+      "069": "بانک ایران زمین",
+      "070": "بانک قرض‌الحسنه رسالت",
+      "078": "بانک خاورمیانه"
+    };
+
+    function validateIBANFormat(iban) {
+      const rearranged = iban.substring(4) + iban.substring(0,4);
+      let numeric = '';
+      for (let i=0; i<rearranged.length; i++) {
+        const char = rearranged[i];
+        if (char >= 'A' && char <= 'Z') {
+          numeric += (char.charCodeAt(0) - 55).toString();
+        } else {
+          numeric += char;
+        }
+      }
+      let remainder = 0;
+      for (let i=0; i<numeric.length; i++) {
+        remainder = (remainder * 10 + parseInt(numeric[i],10)) % 97;
+      }
+      return remainder === 1;
+    }
+
+    function toggleShebaField() {
+      const destBank = document.getElementById("destBank").value;
+      const shebaInput = document.getElementById("sheba");
+      const shebaLabel = document.getElementById("shebaLabel");
+      const shebaPrefix = document.getElementById("shebaPrefix");
+      const ibanDisplay = document.getElementById("ibanDisplay");
+      const bankName = document.getElementById("bankName");
+
+      if (destBank === "saderat") {
+        shebaLabel.textContent = "شماره حساب:";
+        shebaInput.value = "";
+        shebaInput.maxLength = 13;
+        shebaInput.placeholder = "۱۳ رقم شماره حساب را وارد کنید";
+        shebaPrefix.style.display = "none";
+        ibanDisplay.textContent = "";
+        bankName.textContent = "";
+      } else {
+        shebaLabel.textContent = "شماره شبا:";
+        shebaInput.value = "";
+        shebaInput.maxLength = 24;
+        shebaInput.placeholder = "۲۴ رقم شماره حساب داخلی را وارد کنید";
+        shebaPrefix.style.display = "inline-flex";
+      }
+    }
+
+    function generateIBAN() {
+      const destBank = document.getElementById("destBank").value;
+      let inputVal = normalizeDigits(document.getElementById("sheba").value).replace(/\D/g,"");
+      document.getElementById("sheba").value = inputVal;
+
+      if (destBank === "saderat") {
+        if (inputVal.length === 13) {
+          document.getElementById("ibanDisplay").textContent = "شماره حساب معتبر است ✅";
+        } else {
+          document.getElementById("ibanDisplay").textContent = "";
+        }
+        document.getElementById("bankName").textContent = "";
+        return;
+      }
+
+      if (inputVal.length > 0) {
+        const iban = "IR" + inputVal;
+        const formatted = iban.replace(/(.{4})(?=.)/g,"$1 ").trim();
+        document.getElementById("ibanDisplay").textContent = "شبا: " + formatted;
+
+        if (inputVal.length >= 5) {
+          const bankCode = inputVal.substring(2,5);
+          document.getElementById("bankName").textContent = "بانک: " + (bankCodes[bankCode] || "نامشخص");
+        } else {
+          document.getElementById("bankName").textContent = "";
+        }
+
+        if (iban.length === 26) {
+          if (!validateIBANFormat(iban)) {
+            document.getElementById("ibanDisplay").textContent += " ❌ نامعتبر";
+          } else {
+            document.getElementById("ibanDisplay").textContent += " ✅ معتبر";
+          }
+        }
+      } else {
+        document.getElementById("ibanDisplay").textContent = "";
+        document.getElementById("bankName").textContent = "";
+      }
+    }
+
+    function submitForm() {
+      const company = document.getElementById("company").value;
+      const account = document.getElementById("account").value;
+      const name = document.getElementById("name").value.trim();
+      const destBank = document.getElementById("destBank").value;
+      const sheba = document.getElementById("sheba").value.trim();
+      const amountField = document.getElementById("amount").value.replace(/,/g,"");
+      const amountLatin = normalizeDigits(amountField).replace(/\D/g,"");
+
+      let isValid = false;
+      if (destBank === "saderat") {
+        isValid = sheba.length === 13;
+      } else {
+        const iban = "IR" + sheba;
+        isValid = iban.length === 26 && validateIBANFormat(iban);
+      }
+
+      if (company && account && name && amountLatin && isValid) {
+        const record = { company, account, name, sheba, destBank, amount: amountLatin };
+        let records = JSON.parse(localStorage.getItem("records") || "[]");
+        records.push(record);
+        localStorage.setItem("records", JSON.stringify(records));
+        window.location.href = "success.html";
+      } else {
+        document.getElementById("result").textContent = "⚠ لطفاً همه فیلدها را به‌درستی پر کنید (شماره حساب/شبا معتبر باشد).";
+      }
+    }
+  </script>
+</body>
+</html>

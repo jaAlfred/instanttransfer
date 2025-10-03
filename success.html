@@ -24,23 +24,25 @@
   </div>
 
   <script>
-    // ✅ ارسال داده‌ها به Google Sheet
+    // ✅ ارسال داده‌ها به Netlify Function
     function sendToGoogleSheet(records) {
-      fetch("https://script.google.com/macros/s/AKfycbzroO3NfWm7aluEXLqQBPEOGbyZSXpjGsIuV6OOTDrSY3-uxkhn3bmhi43W_1euoBBuvQ/exec", {
+      fetch("/.netlify/functions/saveData", {
         method: "POST",
         body: JSON.stringify(records),
         headers: {
           "Content-Type": "application/json"
         }
       })
-      .then(res => res.text())
-      .then(txt => {
-        console.log("✅ ارسال شد:", txt);
-        alert("اطلاعات با موفقیت در Google Sheet ذخیره شد ✅");
+      .then(res => res.json())
+      .then(data => {
+        console.log("✅ پاسخ از سرور:", data);
+        alert("اطلاعات با موفقیت ارسال شد! ✅");
+        localStorage.removeItem("records");
+        renderRecords();
       })
       .catch(err => {
-        console.error("❌ خطا در ارسال:", err);
-        alert("خطا در اتصال به Google Sheet");
+        console.error("❌ خطا:", err);
+        alert("خطا در ارسال اطلاعات");
       });
     }
 
