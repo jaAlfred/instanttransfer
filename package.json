@@ -1,0 +1,12 @@
+{
+  "name": "instanttransfer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'No build step needed'"
+  },
+  "dependencies": {
+    "googleapis": "^130.0.0"
+  }
+}
