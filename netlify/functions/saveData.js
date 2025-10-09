@@ -1,13 +1,17 @@
 const { google } = require('googleapis');
+const Buffer = require('buffer').Buffer;
 
 const SHEET_ID = '1KI2MGru1__zMP8kHvCCA0HE3mM-03HhT3gMj5rajuZ8';
 const SHEET_NAME = 'Sheet1';
+
+// تبدیل Base64 به کلید خصوصی
+const privateKey = Buffer.from(process.env.GOOGLE_PRIVATE_KEY_BASE64, 'base64').toString('utf-8');
 
 const CREDENTIALS = {
   "type": process.env.GOOGLE_TYPE,
   "project_id": process.env.GOOGLE_PROJECT_ID,
   "private_key_id": process.env.GOOGLE_PRIVATE_KEY_ID,
-  "private_key": process.env.GOOGLE_PRIVATE_KEY,
+  "private_key": privateKey,
   "client_email": process.env.GOOGLE_CLIENT_EMAIL,
   "client_id": process.env.GOOGLE_CLIENT_ID,
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
@@ -19,7 +23,7 @@ const CREDENTIALS = {
 exports.handler = async (event) => {
   try {
     const records = JSON.parse(event.body);
-    console.log("داده‌ها برای ارسال به شیت:", records); // ← این خط باید باشه
+    console.log("داده‌ها برای ارسال به شیت:", records);
 
     const auth = new google.auth.JWT(
       CREDENTIALS.client_email,
@@ -61,5 +65,4 @@ exports.handler = async (event) => {
       body: JSON.stringify({ error: error.message })
     };
   }
-  console.log("کلید خصوصی (5000 کاراکتر اول):", CREDENTIALS.private_key?.substring(0, 50));
 };
