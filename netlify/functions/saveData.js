@@ -1,30 +1,28 @@
 const { google } = require('googleapis');
-const Buffer = require('buffer').Buffer;
 
 const SHEET_ID = '1KI2MGru1__zMP8kHvCCA0HE3mM-03HhT3gMj5rajuZ8';
 const SHEET_NAME = 'Sheet1';
 
-// تبدیل Base64 به کلید خصوصی
-const privateKey = Buffer.from(process.env.GOOGLE_PRIVATE_KEY_BASE64, 'base64').toString('utf-8');
-
+// ساخت credentials از environment variables نتلیفای
 const CREDENTIALS = {
-  "type": process.env.GOOGLE_TYPE,
-  "project_id": process.env.GOOGLE_PROJECT_ID,
-  "private_key_id": process.env.GOOGLE_PRIVATE_KEY_ID,
-  "private_key": privateKey,
-  "client_email": process.env.GOOGLE_CLIENT_EMAIL,
-  "client_id": process.env.GOOGLE_CLIENT_ID,
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": process.env.GOOGLE_CLIENT_X509_CERT_URL
+  type: process.env.GOOGLE_TYPE,
+  project_id: process.env.GOOGLE_PROJECT_ID,
+  private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
+  private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  client_email: process.env.GOOGLE_CLIENT_EMAIL,
+  client_id: process.env.GOOGLE_CLIENT_ID,
+  auth_uri: "https://accounts.google.com/o/oauth2/auth",
+  token_uri: "https://oauth2.googleapis.com/token",
+  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+  client_x509_cert_url: process.env.GOOGLE_CLIENT_X509_CERT_URL
 };
 
 exports.handler = async (event) => {
   try {
     const records = JSON.parse(event.body);
-    console.log("داده‌ها برای ارسال به شیت:", records);
+    console.log("📤 داده‌ها برای ارسال به شیت:", records);
 
+    // احراز هویت با JWT
     const auth = new google.auth.JWT(
       CREDENTIALS.client_email,
       null,
@@ -53,7 +51,7 @@ exports.handler = async (event) => {
       });
     }
 
-    console.log("✅ داده‌ها با موففقیت به Google Sheet ارسال شدند!");
+    console.log("✅ داده‌ها با موفقیت به Google Sheet ارسال شدند!");
     return {
       statusCode: 200,
       body: JSON.stringify({ status: "success" })
