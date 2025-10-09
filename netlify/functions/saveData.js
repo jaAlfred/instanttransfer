@@ -53,7 +53,7 @@ exports.handler = async (event) => {
       });
     }
 
-    console.log("✅ داده‌ها با موفقیت به Google Sheet ارسال شدند!");
+    console.log("✅ داده‌ها با موففقیت به Google Sheet ارسال شدند!");
     return {
       statusCode: 200,
       body: JSON.stringify({ status: "success" })
