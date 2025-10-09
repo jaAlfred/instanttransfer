@@ -25,26 +25,31 @@
 
   <script>
     // ✅ ارسال داده‌ها به Netlify Function
-    function sendToGoogleSheet(records) {
-      fetch("/.netlify/functions/saveData", {
-        method: "POST",
-        body: JSON.stringify(records),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        console.log("✅ پاسخ از سرور:", data);
-        alert("اطلاعات با موفقیت ارسال شد! ✅");
-        localStorage.removeItem("records");
-        renderRecords();
-      })
-      .catch(err => {
-        console.error("❌ خطا:", err);
-        alert("خطا در ارسال اطلاعات");
-      });
+   function sendToGoogleSheet(records) {
+  fetch("/.netlify/functions/saveData", {
+    method: "POST",
+    body: JSON.stringify(records),
+    headers: {
+      "Content-Type": "application/json"
     }
+  })
+  .then(res => {
+    if (!res.ok) {
+      throw new Error(`خطا از سرور: ${res.status} ${res.statusText}`);
+    }
+    return res.json();
+  })
+  .then(data => {
+    console.log("✅ پاسخ از سرور:", data);
+    alert("اطلاعات با موفقیت ارسال شد! ✅");
+    localStorage.removeItem("records");
+    renderRecords();
+  })
+  .catch(err => {
+    console.error("❌ خطا:", err);
+    alert("خطا در ارسال اطلاعات: " + err.message);
+  });
+}
 
     function numberToWords(num) {
       if (num === 0) return "صفر";
