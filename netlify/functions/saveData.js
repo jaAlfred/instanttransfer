@@ -61,5 +61,5 @@ exports.handler = async (event) => {
       body: JSON.stringify({ error: error.message })
     };
   }
-  console.log("کلید خصوصی (50 کاراکتر اول):", CREDENTIALS.private_key?.substring(0, 50));
+  console.log("کلید خصوصی (500 کاراکتر اول):", CREDENTIALS.private_key?.substring(0, 50));
 };
