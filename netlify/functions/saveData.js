@@ -6,6 +6,12 @@ function toPersianDate(gregorianDate) {
   return moment(gregorianDate).locale('fa').format('YYYY-MM-DD');
 }
 
+// تابع تبدیل اعداد انگلیسی به فارسی
+function toPersianDigits(number) {
+  const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+  return number.toString().replace(/\d/g, (digit) => persianDigits[parseInt(digit)]);
+}
+
 exports.handler = async (event) => {
   try {
     // Parse incoming data
@@ -44,7 +50,7 @@ exports.handler = async (event) => {
       item.name,
       item.sheba,
       item.destBank,
-      item.amount,
+      toPersianDigits(item.amount), // تبدیل amount به اعداد فارسی
       partNumber, // شماره پارت
       today // تاریخ شمسی
     ]);
