@@ -1,0 +1,12 @@
+[build]
+  command = "npm install" # دستور build پروژه
+  functions = "functions" # پوشه‌ای که Netlify Functions توش هست
+  publish = "." # پوشه‌ای که فایل‌های استاتیک (HTML و غیره) توش قرار دارن
+
+[build.environment]
+  NODE_VERSION = "18" # نسخه Node.js برای سازگاری با googleapis
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
