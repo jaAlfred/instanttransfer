@@ -16,7 +16,8 @@ exports.handler = async (event) => {
   try {
     // Parse incoming data
     const data = JSON.parse(event.body);
-    console.log('📤 داده‌ها برای ارسال به شیت:', data);
+    console.log('📤 داده‌های خام دریافتی:', event.body); // لاگ داده‌های خام
+    console.log('📤 داده‌های پارس‌شده:', data);
 
     // Google Sheets credentials
     const credentials = JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS);
@@ -44,16 +45,19 @@ exports.handler = async (event) => {
     const partNumber = todayRows.length + 1; // شماره پارت برای امروز
 
     // Prepare data with part number and Persian date
-    const values = data.map(item => [
-      item.company,
-      item.account,
-      item.name,
-      item.sheba,
-      item.destBank,
-      toPersianDigits(item.amount), // تبدیل amount به اعداد فارسی
-      partNumber, // شماره پارت
-      today // تاریخ شمسی
-    ]);
+    const values = data.map(item => {
+      console.log('📤 مقدار company:', item.company); // لاگ مقدار company
+      return [
+        item.company, // بدون تغییر برای حفظ متن فارسی
+        item.account,
+        item.name,
+        item.sheba,
+        item.destBank,
+        toPersianDigits(item.amount), // تبدیل amount به اعداد فارسی
+        partNumber, // شماره پارت
+        today // تاریخ شمسی
+      ];
+    });
 
     // Append data to Google Sheet
     await sheets.spreadsheets.values.append({
