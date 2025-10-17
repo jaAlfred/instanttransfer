@@ -1,19 +1,8 @@
 {
   "name": "netlify-form-to-sheets",
   "version": "1.0.0",
-  "description": "A Netlify project to save form data to Google Sheets",
-  "main": "index.js",
-  "scripts": {
-    "build": "npm install",
-    "start": "netlify dev"
-  },
   "dependencies": {
     "googleapis": "^144.0.0",
     "dotenv": "^16.4.5"
-  },
-  "devDependencies": {
-    "netlify-cli": "^17.33.6"
-  },
-  "author": "",
-  "license": "ISC"
+  }
 }
