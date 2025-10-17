@@ -1,7 +1,8 @@
 [build]
-  command = "npm install" # دستور build پروژه
-  functions = "functions" # پوشه‌ای که Netlify Functions توش هست
-  publish = "." # پوشه‌ای که فایل‌های استاتیک (HTML و غیره) توش قرار دارن
+  command = "npm install"
+  functions = "netlify/functions" # مسیر درست فانکشن‌ها
+  publish = "."
+
 
 [build.environment]
   NODE_VERSION = "18" # نسخه Node.js برای سازگاری با googleapis
