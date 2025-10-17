@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "dependencies": {
     "googleapis": "^144.0.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "jalali-moment": "^3.3.10"
   }
 }

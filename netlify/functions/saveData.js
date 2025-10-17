@@ -1,79 +1,72 @@
 const { google } = require('googleapis');
+const moment = require('jalali-moment');
 
-// برای تست local (اختیاری)
-if (!process.env.NETLIFY) {
-  require('dotenv').config();
+// تابع تبدیل به تاریخ شمسی
+function toPersianDate(gregorianDate) {
+  return moment(gregorianDate).locale('fa').format('YYYY-MM-DD');
 }
 
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
   try {
-    // لاگ داده‌های ورودی
-    console.log('📤 داده‌ها برای ارسال به شیت:', JSON.parse(event.body));
+    // Parse incoming data
+    const data = JSON.parse(event.body);
+    console.log('📤 داده‌ها برای ارسال به شیت:', data);
 
-    const body = JSON.parse(event.body);
-    const records = Array.isArray(body) ? body : [body]; // پشتیبانی از تک یا چند رکورد
-
-    // لود credentials
-    let credentials;
-    try {
-      if (!process.env.GOOGLE_SHEETS_CREDENTIALS) {
-        throw new Error('GOOGLE_SHEETS_CREDENTIALS در متغیرهای محیطی یافت نشد');
-      }
-      credentials = JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS);
-      // تصحیح private_key
-      if (credentials.private_key) {
-        credentials.private_key = credentials.private_key.replace(/\\n/g, '\n').replace(/\\\\n/g, '\n');
-        console.log('🔧 private_key تصحیح شد');
-      } else {
-        throw new Error('private_key در credentials یافت نشد');
-      }
-    } catch (parseError) {
-      console.error('❌ خطا در parse کردن credentials:', parseError);
-      throw new Error('GOOGLE_SHEETS_CREDENTIALS نامعتبر است: ' + parseError.message);
-    }
-
-    // احراز هویت
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
+    // Google Sheets credentials
+    const credentials = JSON.parse(process.env.GOOGLE_SHEETS_CREDENTIALS);
+    const auth = new google.auth.JWT(
+      credentials.client_email,
+      null,
+      credentials.private_key.replace(/\\n/g, '\n'),
+      ['https://www.googleapis.com/auth/spreadsheets']
+    );
+    console.log('🔧 private_key تصحیح شد');
 
     const sheets = google.sheets({ version: 'v4', auth });
-    const spreadsheetId = '1KI2MGru1__zMP8kHvCCA0HE3mM-03HhT3gMj5rajuZ8'; // آیدی شیتت رو اینجا بذار
+    const spreadsheetId = '1KI2MGru1__zMP8kHvCCA0HE3mM-03HhT3gMj5rajuZ8';
 
-    // آماده‌سازی داده‌ها
-    const values = records.map(rec => [
-      rec.company,
-      rec.account,
-      rec.name,
-      rec.sheba,
-      rec.destBank,
-      Number(rec.amount).toLocaleString('fa-IR')
+    // Get current date in Persian format
+    const today = toPersianDate(new Date());
+
+    // Read existing rows to count parts for today
+    const getRows = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'Sheet1!H:H', // ستون تاریخ
+    });
+    const rows = getRows.data.values || [];
+    const todayRows = rows.filter(row => row[0] === today);
+    const partNumber = todayRows.length + 1; // شماره پارت برای امروز
+
+    // Prepare data with part number and Persian date
+    const values = data.map(item => [
+      item.company,
+      item.account,
+      item.name,
+      item.sheba,
+      item.destBank,
+      item.amount,
+      partNumber, // شماره پارت
+      today // تاریخ شمسی
     ]);
 
-    // ارسال به شیت
-    const response = await sheets.spreadsheets.values.append({
+    // Append data to Google Sheet
+    await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: 'Sheet1!A1:F', // تغییر به نام شیتت اگه فرق داره
+      range: 'Sheet1!A1:H', // شامل ستون‌های جدید
       valueInputOption: 'RAW',
       insertDataOption: 'INSERT_ROWS',
-      resource: { values },
+      resource: { values }
     });
-
-    console.log('✅ پاسخ از گوگل شیتس:', response.data);
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        message: `${records.length} رکورد با موفقیت اضافه شد!`,
-        updatedRange: response.data.updates.updatedRange,
-      }),
+      body: JSON.stringify({ message: 'داده‌ها با موفقیت ذخیره شدند' })
     };
   } catch (error) {
     console.error('❌ خطا در اتصال به Google Sheets:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'خطا در ارسال به گوگل شیتس: ' + error.message }),
+      body: JSON.stringify({ error: 'خطا در ذخیره داده‌ها در Google Sheets' })
     };
   }
 };
