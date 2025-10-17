@@ -1,12 +1,19 @@
 {
-  "name": "instanttransfer",
+  "name": "netlify-form-to-sheets",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Netlify project to save form data to Google Sheets",
   "main": "index.js",
   "scripts": {
-    "build": "echo 'No build step needed'"
+    "build": "npm install",
+    "start": "netlify dev"
   },
   "dependencies": {
-    "googleapis": "^130.0.0"
-  }
-}   
+    "googleapis": "^144.0.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.33.6"
+  },
+  "author": "",
+  "license": "ISC"
+}
