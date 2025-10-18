@@ -1,15 +1,11 @@
+const fs = require('fs').promises;
+const crypto = require('crypto');
+
 exports.handler = async (event, context) => {
-  const crypto = require('crypto');
-
-  // اطلاعات معتبر کاربر
-  const validUsername = "sadra";
-  const validPasswordHash = "9218b0b811fc79481d8f7d077346ecf94cfd77d2d764099f5376972701504a63"; // هش SHA-256 برای "SadraSecure2025!"
-
   try {
     console.log("Received event:", event);
     console.log("Request body:", event.body);
-    
-    // بررسی اینکه بدنه درخواست معتبره
+
     if (!event.body) {
       console.log("No body in request");
       return {
@@ -30,11 +26,21 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // خواندن اطلاعات از credentials.json
+    const credentialsFile = './credentials.json';
+    let credentials = { username: "sadra", passwordHash: "9218b0b811fc79481d8f7d077346ecf94cfd77d2d764099f5376972701504a63" };
+    try {
+      const data = await fs.readFile(credentialsFile, 'utf8');
+      credentials = JSON.parse(data);
+    } catch (error) {
+      console.log("No credentials file found, using default credentials");
+    }
+
     // هش کردن رمز عبور ورودی
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
     console.log("Input password hash:", hashedPassword);
 
-    if (username === validUsername && hashedPassword === validPasswordHash) {
+    if (username === credentials.username && hashedPassword === credentials.passwordHash) {
       console.log("Login successful for user:", username);
       return {
         statusCode: 200,
