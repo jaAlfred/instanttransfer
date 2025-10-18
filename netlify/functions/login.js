@@ -3,7 +3,7 @@ exports.handler = async (event, context) => {
 
   // اطلاعات معتبر کاربر
   const validUsername = "sadra";
-  const validPasswordHash = "e6c3da5b2061d77f3a8b3e3b27b2d3a0e6c3da5b2061d77f3a8b3e3b27b2d3a0"; // هش SHA-256 برای "SadraSecure2025!"
+  const validPasswordHash = "9218b0b811fc79481d8f7d077346ecf94cfd77d2d764099f5376972701504a63"; // هش SHA-256 برای "SadraSecure2025!"
 
   try {
     console.log("Received event:", event);
