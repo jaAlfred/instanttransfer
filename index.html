@@ -27,14 +27,33 @@
   </div>
 
   <script>
-    function login() {
+    async function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
+      const loginError = document.getElementById("loginError");
 
-      if (username === "sadra" && password === "12345") {
-        window.location.href = "form.html";
-      } else {
-        document.getElementById("loginError").textContent = "❌ نام کاربری یا رمز عبور اشتباه است.";
+      if (!username || !password) {
+        loginError.textContent = "❌ لطفاً نام کاربری و رمز عبور را وارد کنید.";
+        return;
+      }
+
+      try {
+        const response = await fetch('/.netlify/functions/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          window.location.href = "form.html";
+        } else {
+          loginError.textContent = "❌ " + (result.message || "نام کاربری یا رمز عبور اشتباه است.");
+        }
+      } catch (error) {
+        loginError.textContent = "❌ خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.";
+        console.error("Error:", error);
       }
     }
   </script>
