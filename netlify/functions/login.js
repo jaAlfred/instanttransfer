@@ -1,4 +1,4 @@
-const fs = require('fs').promises;
+const { getStore } = require('@netlify/blobs');
 const crypto = require('crypto');
 
 exports.handler = async (event, context) => {
@@ -26,14 +26,19 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // خواندن اطلاعات از credentials.json
-    const credentialsFile = './credentials.json';
+    // دسترسی به Netlify Blobs
+    const store = getStore({ name: 'credentials-store' });
+    
+    // خواندن اطلاعات
     let credentials = { username: "sadra", passwordHash: "9218b0b811fc79481d8f7d077346ecf94cfd77d2d764099f5376972701504a63" };
     try {
-      const data = await fs.readFile(credentialsFile, 'utf8');
-      credentials = JSON.parse(data);
+      const data = await store.get('credentials', { type: 'json' });
+      if (data) {
+        credentials = data;
+      }
+      console.log("Current credentials:", credentials);
     } catch (error) {
-      console.log("No credentials file found, using default credentials");
+      console.log("No credentials found in Blobs, using default credentials");
     }
 
     // هش کردن رمز عبور ورودی

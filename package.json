@@ -2,8 +2,9 @@
   "name": "netlify-form-to-sheets",
   "version": "1.0.0",
   "dependencies": {
-    "googleapis": "^144.0.0",
+    "@netlify/blobs": "^10.1.0",
     "dotenv": "^16.4.5",
+    "googleapis": "^144.0.0",
     "jalali-moment": "^3.3.10"
   }
 }
