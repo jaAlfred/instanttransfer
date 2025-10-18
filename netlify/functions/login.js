@@ -76,7 +76,7 @@ exports.handler = async (event, context) => {
       console.log("No credentials found in Blobs, using default credentials");
     }
 
-    // هش کردن رمز عبور ورودی
+    // هشش کردن رمز عبور ورودی
     const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
     console.log("Input password hash:", hashedPassword);
 
