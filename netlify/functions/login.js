@@ -9,6 +9,17 @@ exports.handler = async (event, context) => {
     // لود پویای @netlify/blobs
     const { getStore } = await import('@netlify/blobs');
 
+    // چک کردن متغیرهای محیطی
+    const siteID = process.env.NETLIFY_BLOBS_SITE_ID;
+    const token = process.env.NETLIFY_BLOBS_TOKEN;
+    if (!siteID || !token) {
+      console.error("Missing environment variables for Netlify Blobs");
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ success: false, message: "خطا: متغیرهای محیطی Netlify Blobs تنظیم نشده‌اند." })
+      };
+    }
+
     if (!event.body) {
       console.log("No body in request");
       return {
@@ -43,7 +54,7 @@ exports.handler = async (event, context) => {
     // دسترسی به Netlify Blobs
     let store;
     try {
-      store = getStore({ name: 'credentials-store' });
+      store = getStore({ name: 'credentials-store', siteID, token });
       console.log("Successfully accessed Netlify Blobs store");
     } catch (error) {
       console.error("Error accessing Blobs store:", error);
