@@ -1,10 +1,13 @@
-const { getStore } = require('@netlify/blobs');
 const crypto = require('crypto');
 
 exports.handler = async (event, context) => {
   try {
-    console.log("Received event:", event);
+    console.log("Starting login function");
+    console.log("Received event:", JSON.stringify(event, null, 2));
     console.log("Request body:", event.body);
+
+    // لود پویای @netlify/blobs
+    const { getStore } = await import('@netlify/blobs');
 
     if (!event.body) {
       console.log("No body in request");
@@ -14,7 +17,18 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const { username, password } = JSON.parse(event.body);
+    let parsedBody;
+    try {
+      parsedBody = JSON.parse(event.body);
+    } catch (error) {
+      console.error("Error parsing request body:", error);
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ success: false, message: "خطا در پردازش درخواست: فرمت JSON نامعتبر است." })
+      };
+    }
+
+    const { username, password } = parsedBody;
     console.log("Parsed username:", username);
     console.log("Parsed password:", password);
 
@@ -27,8 +41,18 @@ exports.handler = async (event, context) => {
     }
 
     // دسترسی به Netlify Blobs
-    const store = getStore({ name: 'credentials-store' });
-    
+    let store;
+    try {
+      store = getStore({ name: 'credentials-store' });
+      console.log("Successfully accessed Netlify Blobs store");
+    } catch (error) {
+      console.error("Error accessing Blobs store:", error);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ success: false, message: "خطا در دسترسی به Netlify Blobs: " + error.message })
+      };
+    }
+
     // خواندن اطلاعات
     let credentials = { username: "sadra", passwordHash: "9218b0b811fc79481d8f7d077346ecf94cfd77d2d764099f5376972701504a63" };
     try {
@@ -59,7 +83,7 @@ exports.handler = async (event, context) => {
       };
     }
   } catch (error) {
-    console.error("Server error:", error);
+    console.error("Server error in login:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({ success: false, message: "خطا در سرور: " + error.message })
