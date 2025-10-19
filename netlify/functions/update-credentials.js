@@ -17,7 +17,7 @@ const crypto = require('crypto');
            body: JSON.stringify({ success: false, message: "خطا: متغیرهای Supabase تنظیم نشده‌اند." })
          };
        }
-       console.log("Supabase environment found");
+       console.log("Supabase environment found:", { supabaseUrl, supabaseKey: supabaseKey.substring(0, 10) + "..." });
 
        // ایجاد کلاینت Supabase
        const supabase = createClient(supabaseUrl, supabaseKey);
@@ -55,7 +55,7 @@ const crypto = require('crypto');
        }
 
        // خواندن اطلاعات فعلی از Supabase
-       let credentials = { username: "sadra", password_hash: "9218b0b811fc79481d8f7d077346ecf94cfd77d2d764099f5376972701504a63" };
+       let credentials = { id: 1, username: "sadra", password_hash: "9218b0b811fc79481d8f7d077346ecf94cfd77d2d764099f5376972701504a63" };
        try {
          const { data, error } = await supabase
            .from('credentials')
@@ -65,7 +65,9 @@ const crypto = require('crypto');
          if (data) {
            credentials = data;
          }
-         if (error) throw error;
+         if (error) {
+           console.error("Error fetching credentials:", error);
+         }
          console.log("Current credentials:", credentials);
        } catch (error) {
          console.log("No credentials found in Supabase, using default credentials");
@@ -74,6 +76,7 @@ const crypto = require('crypto');
        // هش کردن رمز عبور فعلی
        const hashedCurrentPassword = crypto.createHash('sha256').update(currentPassword).digest('hex');
        console.log("Input current password hash:", hashedCurrentPassword);
+       console.log("Stored password hash:", credentials.password_hash);
 
        // بررسی رمز عبور فعلی
        if (hashedCurrentPassword !== credentials.password_hash) {
@@ -95,13 +98,14 @@ const crypto = require('crypto');
        try {
          const { data, error } = await supabase
            .from('credentials')
-           .upsert({ id: 1, ...newCredentials })
+           .update(newCredentials)
+           .eq('id', 1)
            .select()
            .single();
          if (error) throw error;
-         console.log("Credentials updated successfully in Supabase");
+         console.log("Credentials updated successfully in Supabase:", data);
        } catch (error) {
-         console.error("Error writing to Supabase:", error);
+         console.error("Error updating credentials in Supabase:", error);
          return {
            statusCode: 500,
            body: JSON.stringify({ success: false, message: "خطا در ذخیره اطلاعات در Supabase: " + error.message })
