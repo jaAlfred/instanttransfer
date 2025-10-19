@@ -55,31 +55,28 @@ const crypto = require('crypto');
        }
 
        // خواندن اطلاعات فعلی از Supabase
-       let credentials = { id: 1, username: "sadra", password_hash: "9218b0b811fc79481d8f7d077346ecf94cfd77d2d764099f5376972701504a63" };
-       try {
-         const { data, error } = await supabase
-           .from('credentials')
-           .select('*')
-           .eq('id', 1)
-           .single();
-         if (data) {
-           credentials = data;
-         }
-         if (error) {
-           console.error("Error fetching credentials:", error);
-         }
-         console.log("Current credentials:", credentials);
-       } catch (error) {
-         console.log("No credentials found in Supabase, using default credentials");
+       const { data, error } = await supabase
+         .from('credentials')
+         .select('*')
+         .eq('id', 1)
+         .single();
+       
+       if (error || !data) {
+         console.error("Error fetching credentials or no record found:", error);
+         return {
+           statusCode: 404,
+           body: JSON.stringify({ success: false, message: "رکوردی با id=1 یافت نشد." })
+         };
        }
+       console.log("Current credentials:", data);
 
        // هش کردن رمز عبور فعلی
        const hashedCurrentPassword = crypto.createHash('sha256').update(currentPassword).digest('hex');
        console.log("Input current password hash:", hashedCurrentPassword);
-       console.log("Stored password hash:", credentials.password_hash);
+       console.log("Stored password hash:", data.password_hash);
 
        // بررسی رمز عبور فعلی
-       if (hashedCurrentPassword !== credentials.password_hash) {
+       if (hashedCurrentPassword !== data.password_hash) {
          console.log("Invalid current password");
          return {
            statusCode: 401,
@@ -95,22 +92,21 @@ const crypto = require('crypto');
        const newCredentials = { username: newUsername, password_hash: hashedNewPassword };
 
        // ذخیره اطلاعات جدید در Supabase
-       try {
-         const { data, error } = await supabase
-           .from('credentials')
-           .update(newCredentials)
-           .eq('id', 1)
-           .select()
-           .single();
-         if (error) throw error;
-         console.log("Credentials updated successfully in Supabase:", data);
-       } catch (error) {
-         console.error("Error updating credentials in Supabase:", error);
+       const { data: updatedData, error: updateError } = await supabase
+         .from('credentials')
+         .update(newCredentials)
+         .eq('id', 1)
+         .select()
+         .single();
+       
+       if (updateError) {
+         console.error("Error updating credentials in Supabase:", updateError);
          return {
            statusCode: 500,
-           body: JSON.stringify({ success: false, message: "خطا در ذخیره اطلاعات در Supabase: " + error.message })
+           body: JSON.stringify({ success: false, message: "خطا در ذخیره اطلاعات در Supabase: " + updateError.message })
          };
        }
+       console.log("Credentials updated successfully in Supabase:", updatedData);
 
        return {
          statusCode: 200,

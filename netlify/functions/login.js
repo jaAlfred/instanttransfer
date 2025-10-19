@@ -54,30 +54,27 @@ const crypto = require('crypto');
        }
 
        // خواندن اطلاعات از Supabase
-       let credentials = { id: 1, username: "sadra", password_hash: "9218b0b811fc79481d8f7d077346ecf94cfd77d2d764099f5376972701504a63" };
-       try {
-         const { data, error } = await supabase
-           .from('credentials')
-           .select('*')
-           .eq('id', 1)
-           .single();
-         if (data) {
-           credentials = data;
-         }
-         if (error) {
-           console.error("Error fetching credentials:", error);
-         }
-         console.log("Current credentials:", credentials);
-       } catch (error) {
-         console.log("No credentials found in Supabase, using default credentials");
+       const { data, error } = await supabase
+         .from('credentials')
+         .select('*')
+         .eq('id', 1)
+         .single();
+       
+       if (error || !data) {
+         console.error("Error fetching credentials or no record found:", error);
+         return {
+           statusCode: 404,
+           body: JSON.stringify({ success: false, message: "رکوردی با id=1 یافت نشد." })
+         };
        }
+       console.log("Current credentials:", data);
 
        // هش کردن رمز عبور ورودی
        const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
        console.log("Input password hash:", hashedPassword);
-       console.log("Stored password hash:", credentials.password_hash);
+       console.log("Stored password hash:", data.password_hash);
 
-       if (username === credentials.username && hashedPassword === credentials.password_hash) {
+       if (username === data.username && hashedPassword === data.password_hash) {
          console.log("Login successful for user:", username);
          return {
            statusCode: 200,
@@ -95,6 +92,7 @@ const crypto = require('crypto');
        return {
          statusCode: 500,
          body: JSON.stringify({ success: false, message: "خطا در سرور: " + error.message })
-       };
-     }
+         };
+       }
+     };
    };
