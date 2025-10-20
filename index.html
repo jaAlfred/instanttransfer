@@ -13,18 +13,18 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center min-h-screen">
-  <div class="card bg-base-100 rounded-2xl shadow-2xl p-8 w-full max-w-md fade-in">
-    <h2 class="text-3xl font-bold mb-6 text-center text-primary">🔐 ورود به سیستم</h2>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="card bg-white rounded-2xl shadow-md p-8 w-full max-w-md fade-in border border-gray-200">
+    <h2 class="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-blue-500 to-gray-300 text-transparent bg-clip-text">🔐 ورود به سیستم</h2>
     <div class="form-control mb-4">
-      <input id="username" type="text" placeholder="نام کاربری" class="input input-bordered w-full px-4 py-3 text-lg">
+      <input id="username" type="text" placeholder="نام کاربری" class="input input-bordered w-full px-4 py-3 text-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200">
     </div>
     <div class="form-control mb-4">
-      <input id="password" type="password" placeholder="رمز عبور" class="input input-bordered w-full px-4 py-3 text-lg">
+      <input id="password" type="password" placeholder="رمز عبور" class="input input-bordered w-full px-4 py-3 text-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200">
     </div>
-    <p id="loginError" class="text-error text-sm mb-4 text-center"></p>
-    <button onclick="login()" class="btn btn-primary w-full py-3 text-lg hover:scale-105 transition-transform duration-200">ورود</button>
-    <a href="change-credentials.html" class="btn btn-ghost w-full mt-4 text-lg">تغییر نام کاربری و رمز عبور</a>
+    <p id="loginError" class="text-red-500 text-sm mb-4 text-center"></p>
+    <button onclick="login()" class="btn bg-blue-500 hover:bg-blue-600 text-white w-full py-3 text-lg transition-transform duration-200">ورود</button>
+    <a href="change-credentials.html" class="btn btn-ghost w-full mt-4 text-lg text-gray-600 hover:text-blue-500">تغییر نام کاربری و رمز عبور</a>
   </div>
 
   <script>

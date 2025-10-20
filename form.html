@@ -11,39 +11,38 @@
     label { text-align: right; display: block; }
   </style>
 </head>
-<body class="bg-gradient-to-r from-green-400 to-blue-500 flex items-center justify-center min-h-screen">
-  <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
-    <h2 class="text-xl font-bold text-center mb-4">فرم ثبت اطلاعات</h2>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-6 rounded-2xl shadow-md w-full max-w-md border border-gray-200">
+    <h2 class="text-xl font-bold text-center mb-4 bg-gradient-to-r from-blue-500 to-gray-300 text-transparent bg-clip-text">فرم ثبت اطلاعات</h2>
 
-    <label class="mb-2 font-medium">شرکت:</label>
-    <select id="company" onchange="updateAccounts()" class="w-full border rounded px-3 py-2 mb-3">
+    <label class="mb-2 font-medium text-gray-900">شرکت:</label>
+    <select id="company" onchange="updateAccounts()" class="w-full border rounded px-3 py-2 mb-3 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200">
       <option value="">-- لطفا شرکت را انتخاب کنید --</option>
       <option value="idea">ایده پردازش دانش ساخت</option>
       <option value="imen">ایمن پردازشگران طلوع فارس</option>
       <option value="yekta">یکتا مهراس کیش</option>
     </select>
 
-    <label class="mb-2 font-medium">شماره حساب:</label>
-    <select id="account" class="w-full border rounded px-3 py-2 mb-3" disabled>
+    <label class="mb-2 font-medium text-gray-900">شماره حساب:</label>
+    <select id="account" class="w-full border rounded px-3 py-2 mb-3 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200" disabled>
       <option value="">-- ابتدا شرکت را انتخاب کنید --</option>
     </select>
 
-    <!-- ✅ فیلد جدید برای انتخاب بانک مقصد -->
-    <label class="mb-2 font-medium">نام بانک مقصد:</label>
-    <select id="destBank" onchange="toggleShebaField()" class="w-full border rounded px-3 py-2 mb-3">
+    <label class="mb-2 font-medium text-gray-900">نام بانک مقصد:</label>
+    <select id="destBank" onchange="toggleShebaField()" class="w-full border rounded px-3 py-2 mb-3 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200">
       <option value="other" selected>سایر بانک ها</option>
       <option value="saderat">بانک صادرات</option>
     </select>
 
-    <label class="mb-2 font-medium">نام:</label>
-    <input type="text" id="name" class="w-full border rounded px-3 py-2 mb-3" placeholder="نام و نام خانوادگی">
+    <label class="mb-2 font-medium text-gray-900">نام:</label>
+    <input type="text" id="name" class="w-full border rounded px-3 py-2 mb-3 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200" placeholder="نام و نام خانوادگی">
 
-    <label class="mb-2 font-medium" id="shebaLabel">شماره شبا:</label>
+    <label class="mb-2 font-medium text-gray-900" id="shebaLabel">شماره شبا:</label>
     <div class="flex mb-1" id="shebaContainer">
       <input 
         type="text" 
         id="sheba" 
-        class="flex-1 border rounded-l-md px-3 py-2" 
+        class="flex-1 border rounded-l-md px-3 py-2 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200" 
         maxlength="24" 
         placeholder="۲۴ رقم شماره حساب داخلی را وارد کنید"
         oninput="generateIBAN()"
@@ -52,17 +51,17 @@
         IR
       </span>
     </div>
-    <p id="ibanDisplay" class="text-sm font-bold text-green-700 mt-2"></p>
-    <p id="bankName" class="text-sm text-gray-700 mt-1"></p>
+    <p id="ibanDisplay" class="text-sm font-bold text-green-600 mt-2"></p>
+    <p id="bankName" class="text-sm text-gray-600 mt-1"></p>
 
-    <label class="mb-2 font-medium">مبلغ (ریال):</label>
-    <input type="text" id="amount" oninput="formatAmount()" class="w-full border rounded px-3 py-2 mb-1" placeholder="مثال: 1000000">
-    <p id="amountWords" class="text-sm text-gray-700 mt-1"></p>
+    <label class="mb-2 font-medium text-gray-900">مبلغ (ریال):</label>
+    <input type="text" id="amount" oninput="formatAmount()" class="w-full border rounded px-3 py-2 mb-1 border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200" placeholder="مثال: 1000000">
+    <p id="amountWords" class="text-sm text-gray-600 mt-1"></p>
 
-    <button type="button" onclick="submitForm()" class="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg">ثبت</button>
-    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white w-full py-2 rounded-lg mt-4">خروج</button>
+    <button type="button" onclick="submitForm()" class="bg-blue-500 hover:bg-blue-600 text-white w-full py-2 rounded-lg">ثبت</button>
+    <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white w-full py-2 rounded-lg mt-4">خروج</button>
 
-    <p id="result" class="text-red-600 text-sm mt-3 text-center"></p>
+    <p id="result" class="text-red-500 text-sm mt-3 text-center"></p>
   </div>
 
   <script>
