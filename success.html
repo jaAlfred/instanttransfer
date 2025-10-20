@@ -8,17 +8,19 @@
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
   <style>
     body { font-family: Vazir, sans-serif; }
+    .fade-in { animation: fadeIn 0.5s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
 
   <!-- تاریخ شمسی بالای صفحه -->
-  <div id="dateContainer" class="text-gray-900 text-lg font-bold mb-4"></div>
+  <div id="dateContainer" class="text-gray-900 text-lg font-bold mb-4 fade-in"></div>
 
-  <div class="w-full max-w-md space-y-4" id="recordsContainer"></div>
+  <div class="w-full max-w-md space-y-4 fade-in" id="recordsContainer"></div>
 
   <!-- دکمه‌ها -->
-  <div class="flex gap-4 mt-4">
+  <div class="flex gap-4 mt-4 fade-in">
     <a href="form.html" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg">ثبت جدید</a>
     <button onclick="sendPart()" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg">ارسال این پارت</button>
     <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg">خروج</button>
@@ -131,7 +133,7 @@
       container.innerHTML = "";
       records.forEach((rec, index) => {
         const card = document.createElement("div");
-        card.className = "bg-white p-6 rounded-2xl shadow-md text-center border border-gray-200";
+        card.className = "bg-white p-6 rounded-2xl shadow-md text-center border border-gray-200 fade-in";
         const isSaderat = rec.destBank === "saderat";
         const accountLabel = isSaderat ? "شماره حساب" : "شماره شبا";
         const accountValue = isSaderat ? rec.sheba : ("IR" + rec.sheba);
