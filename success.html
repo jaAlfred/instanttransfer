@@ -24,32 +24,37 @@
   </div>
 
   <script>
-    // ✅ ارسالل داده‌ها به Netlify Function
-   function sendToGoogleSheet(records) {
-  fetch("/.netlify/functions/saveData", {
-    method: "POST",
-    body: JSON.stringify(records),
-    headers: {
-      "Content-Type": "application/json"
+    // چک دسترسی: اگر لاگین نکرده باشه، به index.html هدایت می‌شه
+    if (!localStorage.getItem('isAuthenticated')) {
+      window.location.href = '/index.html';
     }
-  })
-  .then(res => {
-    if (!res.ok) {
-      throw new Error(`خطا از سرور: ${res.status} ${res.statusText}`);
+
+    // ✅ ارسال داده‌ها به Netlify Function
+    function sendToGoogleSheet(records) {
+      fetch("/.netlify/functions/saveData", {
+        method: "POST",
+        body: JSON.stringify(records),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`خطا از سرور: ${res.status} ${res.statusText}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log("✅ پاسخ از سرور:", data);
+        alert("اطلاعات با موفقیت ارسال شد! ✅");
+        localStorage.removeItem("records");
+        renderRecords();
+      })
+      .catch(err => {
+        console.error("❌ خطا:", err);
+        alert("خطا در ارسال اطلاعات: " + err.message);
+      });
     }
-    return res.json();
-  })
-  .then(data => {
-    console.log("✅ پاسخ از سرور:", data);
-    alert("اطلاعات با موفقیت ارسال شد! ✅");
-    localStorage.removeItem("records");
-    renderRecords();
-  })
-  .catch(err => {
-    console.error("❌ خطا:", err);
-    alert("خطا در ارسال اطلاعات: " + err.message);
-  });
-}
 
     function numberToWords(num) {
       if (num === 0) return "صفر";

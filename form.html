@@ -65,6 +65,11 @@
   </div>
 
   <script>
+    // چک دسترسی: اگر لاگین نکرده باشه، به index.html هدایت می‌شه
+    if (!localStorage.getItem('isAuthenticated')) {
+      window.location.href = '/index.html';
+    }
+
     const accounts = {
       "idea": ["0219112835002","0340299403008"],
       "imen": ["0219112791004"],
