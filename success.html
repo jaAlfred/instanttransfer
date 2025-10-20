@@ -21,11 +21,17 @@
   <div class="flex gap-4 mt-4">
     <a href="form.html" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg">ثبت جدید</a>
     <button onclick="sendPart()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg">ارسال این پارت</button>
+    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg">خروج</button>
   </div>
 
   <script>
     // چک دسترسی: اگر لاگین نکرده باشه، به index.html هدایت می‌شه
     if (!localStorage.getItem('isAuthenticated')) {
+      window.location.href = '/index.html';
+    }
+
+    function logout() {
+      localStorage.removeItem('isAuthenticated');
       window.location.href = '/index.html';
     }
 
@@ -199,7 +205,7 @@
     // تابع ارسال نهایی
     function sendPart() {
       if (records.length === 0) {
-        alert("هیچ رکورردی برای ارسال وجود ندارد.");
+        alert("هیچ رکوردی برای ارسال وجود ندارد.");
         return;
       }
 

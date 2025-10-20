@@ -25,7 +25,6 @@
     <p id="loginError" class="text-error text-sm mb-4 text-center"></p>
     <button onclick="login()" class="btn btn-primary w-full py-3 text-lg hover:scale-105 transition-transform duration-200">ورود</button>
     <a href="change-credentials.html" class="btn btn-ghost w-full mt-4 text-lg">تغییر نام کاربری و رمز عبور</a>
-    <button onclick="logout()" class="btn btn-ghost w-full mt-4 text-lg">خروج</button>
   </div>
 
   <script>
@@ -58,11 +57,6 @@
         loginError.textContent = "❌ خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.";
         console.error("Error:", error);
       }
-    }
-
-    function logout() {
-      localStorage.removeItem('isAuthenticated');
-      window.location.href = "index.html";
     }
   </script>
 </body>

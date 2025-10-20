@@ -60,6 +60,7 @@
     <p id="amountWords" class="text-sm text-gray-700 mt-1"></p>
 
     <button type="button" onclick="submitForm()" class="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg">ثبت</button>
+    <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white w-full py-2 rounded-lg mt-4">خروج</button>
 
     <p id="result" class="text-red-600 text-sm mt-3 text-center"></p>
   </div>
@@ -67,6 +68,11 @@
   <script>
     // چک دسترسی: اگر لاگین نکرده باشه، به index.html هدایت می‌شه
     if (!localStorage.getItem('isAuthenticated')) {
+      window.location.href = '/index.html';
+    }
+
+    function logout() {
+      localStorage.removeItem('isAuthenticated');
       window.location.href = '/index.html';
     }
 
