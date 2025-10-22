@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     body {
       font-family: 'Vazir', sans-serif;
@@ -21,6 +22,7 @@
       h2 { font-size: 1.5rem; }
       .input { font-size: 1rem; padding: 0.5rem; }
       button, a.btn { font-size: 1rem; padding: 0.5rem; }
+      .password-toggle { padding: 0.25rem; }
     }
   </style>
 </head>
@@ -30,8 +32,11 @@
     <div class="form-control mb-4">
       <input id="username" type="text" placeholder="نام کاربری" class="input input-bordered w-full px-4 py-3 text-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200">
     </div>
-    <div class="form-control mb-4">
-      <input id="password" type="password" placeholder="رمز عبور" class="input input-bordered w-full px-4 py-3 text-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200">
+    <div class="form-control mb-4 relative">
+      <input id="password" type="password" placeholder="رمز عبور" class="input input-bordered w-full px-4 py-3 text-lg border-gray-300 focus:border-blue-500 focus:ring focus:ring-blue-200 pr-10">
+      <button type="button" id="togglePassword" class="absolute top-1/2 right-2 transform -translate-y-1/2 text-gray-500 password-toggle focus:outline-none" onclick="togglePasswordVisibility()">
+        <i class="fas fa-eye"></i>
+      </button>
     </div>
     <p id="loginError" class="text-red-500 text-sm mb-4 text-center"></p>
     <button onclick="login()" class="btn bg-blue-500 hover:bg-blue-600 text-white w-full py-3 text-lg transition-transform duration-200">ورود</button>
@@ -67,6 +72,22 @@
       } catch (error) {
         loginError.textContent = "❌ خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.";
         console.error("Error:", error);
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById("password");
+      const toggleButton = document.getElementById("togglePassword");
+      const eyeIcon = toggleButton.querySelector("i");
+
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        eyeIcon.classList.remove("fa-eye");
+        eyeIcon.classList.add("fa-eye-slash");
+      } else {
+        passwordInput.type = "password";
+        eyeIcon.classList.remove("fa-eye-slash");
+        eyeIcon.classList.add("fa-eye");
       }
     }
   </script>
